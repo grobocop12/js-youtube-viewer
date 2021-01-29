@@ -1,47 +1,46 @@
 let player;
-let socket
+const socket = io(`/${id}`)
 var firstPlay = false;
-var paused = false;
+var paused = true;
+
+socket.on('pause', (message) => {
+    const time = message.time
+    paused = true
+    player.seekTo(time)
+    player.pauseVideo()
+})
+socket.on('play', (message) => {
+    console.log('play received')
+    const time = message.time
+    paused = false
+    player.seekTo(time)
+    player.playVideo()
+})
+socket.on('getTime', (message) => {
+    socket.emit('returnTime', {
+        'queryId' : message.queryId,
+        'time': player.getCurrentTime()
+    })
+})
+socket.on('returnTime', (message => {
+    console.log('return time')
+    const time = message.time
+    paused = false
+    player.seekTo(time)
+    player.playVideo()
+}))
 
 function onPlayerReady(event) {
-    event.target.playVideo();
-    paused = false;
-    socket = io(`/${id}`)
-    socket.on('connect', () => {
-        socket.on('pause', (message) => {
-            const time = message.time
-            paused = true
-            player.seekTo(time)
-            player.pauseVideo()
-        })
-        socket.on('play', (message) => {
-            const time = message.time
-            paused = false
-            player.seekTo(time)
-            player.playVideo()
-        })
-        socket.on('getTime', (message) => {
-            socket.emit('returnTime', {
-                'queryId' : message.queryId,
-                'time': player.getCurrentTime()
-            })
-        })
-        socket.on('returnTime', (message => {
-            const time = message.time
-            paused = false
-            player.seekTo(time)
-            player.playVideo()
-        }))
-        socket.emit('getTime', {})
-    })
+    socket.emit('getTime', {})
 }
 
 function onPlayerStateChange(event) {
-    if (event.data == YT.PlayerState.PAUSED) {
+    if (event.data === YT.PlayerState.PAUSED) {
+        paused = true
         socket.emit('pause', { 
             'time': player.getCurrentTime()
         })
-    } else if (event.data == YT.PlayerState.PLAYING && paused === true) {
+    } else if (event.data === YT.PlayerState.PLAYING && paused === true) {
         paused = false
         socket.emit('play', { 
             'time': player.getCurrentTime()

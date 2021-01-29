@@ -56,6 +56,8 @@ function setNamespace(id) {
                 nsp.sockets[id].emit('getTime', {
                     queryId: socket.id
                 })
+            } else {
+                socket.emit('returnTime', { 'time': 0.0 })
             }
         })
         socket.on('returnTime', (msg) => {
