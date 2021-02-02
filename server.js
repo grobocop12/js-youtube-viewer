@@ -9,7 +9,6 @@ app.use(express.static(__dirname + '/public'))
 app.use(bodyParser.urlencoded({ extended: true }))
 const expressServer = app.listen(8080)
 const io = socketio(expressServer)
-const namespaces = {}
 const rooms = {}
 
 app.get('/', (req, res) => {
