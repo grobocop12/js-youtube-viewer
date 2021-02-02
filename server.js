@@ -18,6 +18,9 @@ app.get('/', (req, res) => {
 
 app.post('/', (req, res) => {
     const videoId = req.body.videoId
+    if(videoId=== null || videoId.trim() === "") {
+        res.redirect('/')
+    }
     const id = uuid();
     rooms[id] = {
         videoId: videoId,
