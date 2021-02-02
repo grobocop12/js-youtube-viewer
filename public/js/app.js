@@ -9,6 +9,7 @@ socket.on('pause', (message) => {
     player.seekTo(time)
     player.pauseVideo()
 })
+
 socket.on('play', (message) => {
     console.log('play received')
     const time = message.time
@@ -16,12 +17,14 @@ socket.on('play', (message) => {
     player.seekTo(time)
     player.playVideo()
 })
+
 socket.on('getTime', (message) => {
     socket.emit('returnTime', {
         'queryId' : message.queryId,
         'time': player.getCurrentTime()
     })
 })
+
 socket.on('returnTime', (message => {
     console.log('return time')
     const time = message.time
@@ -50,8 +53,8 @@ function onPlayerStateChange(event) {
 
 function onYouTubeIframeAPIReady() {
     player = new YT.Player('player', {
-        height: '360',
-        width: '640',
+        height: '720',
+        width: '1280',
         videoId: videoId,
         events: {
             'onReady': onPlayerReady,
