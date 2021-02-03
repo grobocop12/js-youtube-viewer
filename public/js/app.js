@@ -51,8 +51,8 @@ function onPlayerStateChange(event) {
     }
 }
 
-function onYouTubeIframeAPIReady() {
-    player = new YT.Player('player', {
+function createPlayer(videoId) {
+	 player = new YT.Player('player', {
         height: '720',
         width: '1280',
         videoId: videoId,
@@ -61,4 +61,8 @@ function onYouTubeIframeAPIReady() {
             'onStateChange': onPlayerStateChange
         }
     });
+}
+
+function onYouTubeIframeAPIReady() {
+   createPlayer(videoId);
 }
