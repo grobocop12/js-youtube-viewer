@@ -1,15 +1,17 @@
 const express = require('express')
 const bodyParser = require('body-parser')
-const app = express()
 const socketio = require('socket.io')
 const { v4: uuid } = require('uuid')
+
+const app = express()
+const expressServer = app.listen(8080)
+const io = socketio(expressServer)
+const namespaces = {}
 
 app.set('view engine', 'ejs')
 app.use(express.static(__dirname + '/public'))
 app.use(bodyParser.urlencoded({ extended: true }))
-const expressServer = app.listen(8080)
-const io = socketio(expressServer)
-const rooms = {}
+
 
 app.get('/', (req, res) => {
     res.render('index')
@@ -17,11 +19,12 @@ app.get('/', (req, res) => {
 
 app.post('/', (req, res) => {
     const videoId = req.body.videoId
-    if(videoId=== null || videoId.trim() === "") {
+    if (videoId === null || videoId.trim() === "") {
         res.redirect('/')
     }
+
     const id = uuid();
-    rooms[id] = {
+    namespaces[id] = {
         videoId: videoId,
         nsp: setNamespace(id)
     }
@@ -30,11 +33,11 @@ app.post('/', (req, res) => {
 
 app.get('/:uuid', (req, res) => {
     const id = req.params.uuid
-    const room = rooms[id]
-    if (room !== undefined) {
+    const namespace = namespaces[id]
+    if (namespace !== undefined && namespace !== null) {
         res.render('video', {
             id: id,
-            videoId: room.videoId
+            videoId: namespace.videoId
         })
     } else {
         res.redirect('/')
@@ -64,6 +67,14 @@ function setNamespace(id) {
         })
         socket.on('returnTime', (msg) => {
             nsp.sockets[msg.queryId].emit('returnTime', msg)
+        })
+        socket.on('changeVideo', (msg) => {
+            const videoId = msg.videoId
+            if (videoId === null || videoId.trim() === "") {
+                return
+            }
+            namespaces[id].videoId = videoId
+            nsp.emit('changeVideo', msg)
         })
     })
     return nsp

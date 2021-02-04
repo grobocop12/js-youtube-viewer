@@ -1,7 +1,16 @@
-let player;
+const buttonChangeId = document.getElementById('submitChange')
+const inputVideoId = document.getElementById('inputVideoId')
 const socket = io(`/${id}`)
 var firstPlay = false;
 var paused = true;
+var player;
+
+buttonChangeId.addEventListener('click', (e) => {
+    e.preventDefault()
+    const newVideoId = inputVideoId.value;
+    inputVideoId.value = ""
+    changeVideo(newVideoId);
+})
 
 socket.on('pause', (message) => {
     const time = message.time
@@ -11,7 +20,6 @@ socket.on('pause', (message) => {
 })
 
 socket.on('play', (message) => {
-    console.log('play received')
     const time = message.time
     paused = false
     player.seekTo(time)
@@ -25,13 +33,16 @@ socket.on('getTime', (message) => {
     })
 })
 
-socket.on('returnTime', (message => {
-    console.log('return time')
+socket.on('returnTime', (message) => {
     const time = message.time
     paused = false
     player.seekTo(time)
     player.playVideo()
-}))
+})
+
+socket.on('changeVideo', (message) => {
+    window.location.reload();
+})
 
 function onPlayerReady(event) {
     socket.emit('getTime', {})
@@ -51,11 +62,17 @@ function onPlayerStateChange(event) {
     }
 }
 
-function createPlayer(videoId) {
-	 player = new YT.Player('player', {
+function changeVideo(videoId) {
+    socket.emit('changeVideo', {
+        'videoId': videoId
+    })
+}
+
+function createPlayer(id) {
+	player = new YT.Player('player', {
         height: '720',
         width: '1280',
-        videoId: videoId,
+        videoId: id,
         events: {
             'onReady': onPlayerReady,
             'onStateChange': onPlayerStateChange
