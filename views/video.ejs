@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/css/main.css">
     <title>Viewer</title>
     <script src="/socket.io/socket.io.js"></script>
     <script src="https://www.youtube.com/iframe_api"></script>
@@ -15,13 +16,27 @@
 
 <body>
     <div>
+        <nav>
+            <a href="https://github.com/grobocop12/js-youtube-viewer" style="float: right;">
+                <img loading="lazy" width="149" height="149"
+                    src="https://github.blog/wp-content/uploads/2008/12/forkme_right_green_007200.png?resize=149%2C149"
+                    class="attachment-full size-full" alt="Fork me on GitHub" data-recalc-dims="1">
+            </a>
+        </nav>
+    </div>
+    <div>
         <div id="player"></div>
     </div>
     <div>
         <div>
             <form>
-                <input type="text" name="videoId" id="inputVideoId">
-                <input type="submit" id="submitChange" value="Change video">
+                <div>
+                    <label for="inputVideoId">Youtube video URL:</label>
+                </div>
+                <div>
+                    <input type="text" name="videoId" id="inputVideoId">
+                    <input type="submit" id="submitChange" value="Change video">
+                </div>
             </form>
         </div>
     </div>
