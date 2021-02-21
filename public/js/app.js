@@ -62,9 +62,9 @@ function onPlayerStateChange(event) {
     }
 }
 
-function changeVideo(videoId) {
+function changeVideo(videoUrl) {
     socket.emit('changeVideo', {
-        'videoId': videoId
+        'videoUrl': videoUrl
     })
 }
 

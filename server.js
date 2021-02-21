@@ -18,14 +18,15 @@ app.get('/', (req, res) => {
 })
 
 app.post('/', (req, res) => {
-    const videoId = req.body.videoId
-    if (videoId === null || videoId.trim() === "") {
+    const videoUrl = req.body.videoUrl
+    if (videoUrl === null || videoUrl.trim() === "") {
         res.redirect('/')
     }
-
-    const id = uuid();
+    const params = new URLSearchParams(videoUrl.split('?')[1])
+    const v = params.get('v')
+    const id = uuid()
     namespaces[id] = {
-        videoId: videoId,
+        videoId: v,
         nsp: setNamespace(id)
     }
     res.redirect(`/${id}`)
@@ -69,11 +70,13 @@ function setNamespace(id) {
             nsp.sockets[msg.queryId].emit('returnTime', msg)
         })
         socket.on('changeVideo', (msg) => {
-            const videoId = msg.videoId
-            if (videoId === null || videoId.trim() === "") {
+            const videoUrl = msg.videoUrl
+            if (videoUrl === null || videoUrl.trim() === "") {
                 return
             }
-            namespaces[id].videoId = videoId
+            const params = new URLSearchParams(videoUrl.split('?')[1])
+            const v = params.get('v')
+            namespaces[id].videoId = v
             nsp.emit('changeVideo', msg)
         })
     })
