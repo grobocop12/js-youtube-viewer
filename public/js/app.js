@@ -1,5 +1,6 @@
 const buttonChangeId = document.getElementById('submitChange')
 const inputVideoId = document.getElementById('inputVideoId')
+const viewerCounter = document.getElementById('viewerCounter')
 const socket = io(`/${id}`)
 var firstPlay = false;
 var paused = true;
@@ -44,8 +45,13 @@ socket.on('changeVideo', (message) => {
     window.location.reload();
 })
 
+socket.on('updateCounter', (message) => {
+    viewerCounter.innerText = `Number of viewers: ${message.value}`
+})
+
 function onPlayerReady(event) {
     socket.emit('getTime', {})
+    socket.emit('updateCounter')
 }
 
 function onPlayerStateChange(event) {

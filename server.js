@@ -27,7 +27,7 @@ app.post('/', (req, res) => {
     namespaces[id] = {
         videoId: v,
         nsp: setNamespace(id),
-        numberOfViewers : 0
+        numberOfViewers: 0
     }
     res.redirect(`/${id}`)
 })
@@ -50,7 +50,6 @@ function setNamespace(id) {
     nsp.on('connection', (socket) => {
         socket.join("video-room")
         const number = nsp.adapter.rooms['video-room'].length
-        console.log(number)
         socket.on('pause', (msg) => {
             socket.broadcast.emit('pause', msg)
         })
@@ -81,15 +80,20 @@ function setNamespace(id) {
             namespaces[id].videoId = v
             nsp.emit('changeVideo', msg)
         })
-        socket.on('disconnect', () => {
-            nsp.to('video-room').emit('updateCounter', {
-                value: nsp.adapter.rooms['video-room'].length
-            })
+        socket.on('updateCounter', () => {
+            updateCounter(nsp)
         })
-        nsp.to('video-room').emit('updateCounter', {
-            value: nsp.adapter.rooms['video-room'].length
+        socket.on('disconnect', () => {
+            updateCounter(nsp)
         })
     })
     return nsp
 }
 
+function updateCounter(namespace) {
+    const room = namespace.adapter.rooms['video-room']
+    const length = room !== undefined ? room.length : 0
+    namespace.to('video-room').emit('updateCounter', {
+        value: length
+    })
+}
