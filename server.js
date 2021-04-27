@@ -12,7 +12,6 @@ app.set('view engine', 'ejs')
 app.use(express.static(__dirname + '/public'))
 app.use(bodyParser.urlencoded({ extended: true }))
 
-
 app.get('/', (req, res) => {
     res.render('index')
 })
@@ -27,7 +26,8 @@ app.post('/', (req, res) => {
     const id = uuid()
     namespaces[id] = {
         videoId: v,
-        nsp: setNamespace(id)
+        nsp: setNamespace(id),
+        numberOfViewers : 0
     }
     res.redirect(`/${id}`)
 })
@@ -43,12 +43,14 @@ app.get('/:uuid', (req, res) => {
     } else {
         res.redirect('/')
     }
-
 })
 
 function setNamespace(id) {
     const nsp = io.of(`/${id}`);
     nsp.on('connection', (socket) => {
+        socket.join("video-room")
+        const number = nsp.adapter.rooms['video-room'].length
+        console.log(number)
         socket.on('pause', (msg) => {
             socket.broadcast.emit('pause', msg)
         })
@@ -78,6 +80,14 @@ function setNamespace(id) {
             const v = params.get('v')
             namespaces[id].videoId = v
             nsp.emit('changeVideo', msg)
+        })
+        socket.on('disconnect', () => {
+            nsp.to('video-room').emit('updateCounter', {
+                value: nsp.adapter.rooms['video-room'].length
+            })
+        })
+        nsp.to('video-room').emit('updateCounter', {
+            value: nsp.adapter.rooms['video-room'].length
         })
     })
     return nsp
